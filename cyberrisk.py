@@ -158,49 +158,11 @@ def create_dashboard_visualizations(df):
     df_top_vector = df[df['Attack Vector'].isin(top_vectors)]
     
     # Create tabs for different visualizations
-    tab2, tab3, tab5 = st.tabs([ "Exposure Analysis", "CVaR Heatmap", "PREDICTIVE ANALYTICS"])
+    tab1, tab2, tab3 = st.tabs([  "PREDICTIVE ANALYTICS", "Exposure Analysis", "CVaR Heatmap"])
     
-    with tab2:
-        # Exposure analysis charts
-        col1, col2 = st.columns(2)
-        plt.style.use('dark_background')
-        with col1:
-            #st.subheader("CVaR vs Risk Exposure by Industry")
-            plt.style.use('dark_background')
-            st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR vs Risk Exposure by Industry</h1>", 
-            unsafe_allow_html=True )
-            fig, ax = plt.subplots(figsize=(8, 6))
-            sns.scatterplot(data=df_top_industry, x='Risk Exposure Score', y='Simulated CVaR 95% ($)', 
-                           hue='Industry', alpha=0.8, ax=ax)
-            ax.set_xlabel("Risk Exposure Score")
-            ax.set_ylabel("Simulated CVaR 95% ($)")
-            st.pyplot(fig)
-        
-        with col2:
-            #st.subheader("CVaR vs Risk Exposure by Attack Vector")
-            st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR vs Risk Exposure by Attack Vector</h1>", 
-            unsafe_allow_html=True )
-            fig, ax = plt.subplots(figsize=(8, 6))
-            sns.scatterplot(data=df_top_vector, x='Risk Exposure Score', y='Simulated CVaR 95% ($)', 
-                           hue='Attack Vector', alpha=0.8, ax=ax)
-            ax.set_xlabel("Risk Exposure Score")
-            ax.set_ylabel("Simulated CVaR 95% ($)")
-            st.pyplot(fig)
-    
-    with tab3:
-        # Heatmap
-        #st.subheader("CVaR Heatmap by Industry × Attack Vector")
-        st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR Heatmap by Industry × Attack Vector</h1>", 
-            unsafe_allow_html=True )
-        pivot = df.pivot_table(values='Simulated CVaR 95% ($)', index='Industry', columns='Attack Vector', aggfunc='mean')
-        fig, ax = plt.subplots(figsize=(10, 3))
-        sns.heatmap(pivot, annot=True, fmt=".0f", cmap="YlOrBr", ax=ax, annot_kws={"fontsize": 8})
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=8)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=8)
 
-        st.pyplot(fig)
 
-    with tab5:
+    with tab1:
 
         input_data = {}
         # Get unique values from original data
@@ -214,10 +176,10 @@ def create_dashboard_visualizations(df):
             input_data['Frequency'] = st.slider("Frequency (number of incidents)", min_value=1, max_value=20, value=10)
         with coli2:
             attack_vector_selection = st.selectbox("Attack Vector", all_vectors)
-            input_data['Vulnerability Score'] = st.slider("Vulnerability Score (0-1)", min_value=0.1, max_value=1.0, value=0.1 )
+            input_data['Vulnerability Score'] = st.slider("Vulnerability Score (0-1)", min_value=0.1, max_value=1.0, value=0.4 )
         with coli3:
             asset_at_risk_selection = st.selectbox("Asset at Risk", all_assets_at_risk)
-            input_data['Control Maturity Score'] = st.slider( "Control Maturity Score (0-1)", min_value=0.0, max_value=1.0, value=0.1 )
+            input_data['Control Maturity Score'] = st.slider( "Control Maturity Score (0-1)", min_value=0.0, max_value=1.0, value=0.6 )
         with coli4:
             input_data['Primary Loss ($)'] = st.number_input("Primary Loss ($)", min_value=0, value=500000, step=10000)
             input_data['Downtime (hrs)'] = st.slider( "Downtime (hours)", min_value=1, max_value=120, value=30 )
@@ -443,7 +405,44 @@ def create_dashboard_visualizations(df):
             ]
             ax.legend(handles=legend_handles, title="Risk Tier", bbox_to_anchor=(1.05, 1), loc='upper left')
             st.pyplot(fig)
+    
+    with tab2:
+        # Exposure analysis charts
+            col1, col2 = st.columns(2)
+            plt.style.use('dark_background')
+            with col1:
+                #st.subheader("CVaR vs Risk Exposure by Industry")
+                plt.style.use('dark_background')
+                st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR vs Risk Exposure by Industry</h1>", 
+                unsafe_allow_html=True )
+                fig, ax = plt.subplots(figsize=(8, 6))
+                sns.scatterplot(data=df_top_industry, x='Risk Exposure Score', y='Simulated CVaR 95% ($)', 
+                            hue='Industry', alpha=0.8, ax=ax)
+                ax.set_xlabel("Risk Exposure Score")
+                ax.set_ylabel("Simulated CVaR 95% ($)")
+                st.pyplot(fig)
             
+            with col2:
+                #st.subheader("CVaR vs Risk Exposure by Attack Vector")
+                st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR vs Risk Exposure by Attack Vector</h1>", 
+                unsafe_allow_html=True )
+                fig, ax = plt.subplots(figsize=(8, 6))
+                sns.scatterplot(data=df_top_vector, x='Risk Exposure Score', y='Simulated CVaR 95% ($)', 
+                            hue='Attack Vector', alpha=0.8, ax=ax)
+                ax.set_xlabel("Risk Exposure Score")
+                ax.set_ylabel("Simulated CVaR 95% ($)")
+                st.pyplot(fig)
+    
+    with tab3:
+        # Heatmap
+        st.markdown( "<h1 style='font-size: 16px; text-align: center;'>CVaR Heatmap by Industry × Attack Vector</h1>", 
+            unsafe_allow_html=True )
+        pivot = df.pivot_table(values='Simulated CVaR 95% ($)', index='Industry', columns='Attack Vector', aggfunc='mean')
+        fig, ax = plt.subplots(figsize=(10, 3))
+        sns.heatmap(pivot, annot=True, fmt=".0f", cmap="YlOrBr", ax=ax, annot_kws={"fontsize": 8})
+        ax.set_xticklabels(ax.get_xticklabels(), fontsize=8)
+        ax.set_yticklabels(ax.get_yticklabels(), fontsize=8)
+        st.pyplot(fig)
             
 
     st.divider()   
